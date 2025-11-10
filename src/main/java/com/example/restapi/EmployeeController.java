@@ -37,6 +37,15 @@ class EmployeeController {
         return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
     }
     // end::get-aggregate-root[]
+    
+    
+    @GetMapping(value = "/demo", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, String> all() {
+        // Trả về JSON {"message": "OxiiTek"}
+        return Map.of("message", "OxiiTek");
+    }
+
 
     @PostMapping("/employees")
     ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee) {
