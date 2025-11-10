@@ -13,7 +13,7 @@ pipeline {
                 script {
                     // Input step chờ user approve
                     def userInput = input(
-                        id: 'Approval', message: 'Do you approve to continue to Stage 3?', ok: 'Yes', submitter: 'team-lead'
+                        id: 'Approval', message: 'Do you approve to continue to Stage 3?', ok: 'Yes', submitter: 'tpb'
                     )
 
                     // Lưu trạng thái approval vào env để stage tiếp theo đọc
