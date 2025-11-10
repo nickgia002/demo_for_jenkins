@@ -37,6 +37,17 @@ class EmployeeController {
         return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
     }
     // end::get-aggregate-root[]
+    
+    
+    @GetMapping("/demo")
+    CollectionModel<EntityModel<Employee>> all() {
+
+        List<EntityModel<Employee>> employees = repository.findAll().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+        return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
+    }
+
 
     @PostMapping("/employees")
     ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee) {
