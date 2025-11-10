@@ -39,13 +39,11 @@ class EmployeeController {
     // end::get-aggregate-root[]
     
     
-    @GetMapping("/demo")
-    CollectionModel<EntityModel<Employee>> all() {
-
-        List<EntityModel<Employee>> employees = repository.findAll().stream()
-                .map(assembler::toModel)
-                .collect(Collectors.toList());
-        return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
+    @GetMapping(value = "/demo", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, String> all() {
+        // Trả về JSON {"message": "OxiiTek"}
+        return Map.of("message", "OxiiTek");
     }
 
 
