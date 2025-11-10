@@ -5,8 +5,6 @@ pipeline {
         stage('Stage 1: Demo Task') {
             steps {
                 echo 'Running Stage 1...'
-                // Thêm logic demo nếu muốn
-                sh 'echo "Hello from Stage 1"'
             }
         }
 
@@ -30,14 +28,7 @@ pipeline {
             }
             steps {
                 echo 'Running Stage 3 because approval was granted.'
-                sh 'echo "Stage 3 executed"'
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline finished.'
         }
     }
 }
