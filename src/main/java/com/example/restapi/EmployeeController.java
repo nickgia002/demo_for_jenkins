@@ -56,7 +56,6 @@ class EmployeeController {
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
                 .body(entityModel);
     }
-
     // Single item
 
     @GetMapping("/employees/{id}")
