@@ -43,7 +43,7 @@ class EmployeeController {
     @ResponseBody
     public Map<String, String> all() {
         // Trả về JSON {"message": "OxiiTek"}
-        return Map.of("message", "OxiiTek");
+        return Map.of("message", "OxiiTek Development.");
     }
 
 
