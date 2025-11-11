@@ -47,4 +47,11 @@ pipeline {
             }
         }
     }
+
+    post {
+    always {
+        cleanWs()  // Dọn sạch workspace sau khi job kết thúc
+        }
+    }
+
 }
