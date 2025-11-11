@@ -13,7 +13,7 @@ pipeline {
                 )])
                 {
                 sh '''
-                    docker build -t nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}
+                    docker build -t nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER} .
                     echo $DOCKER_PASS | docker login docker.io -u $DOCKER_USER --password-stdin
                     docker push nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}
 
