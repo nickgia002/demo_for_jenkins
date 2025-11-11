@@ -1,8 +1,6 @@
 pipeline {
     agent any
 
-
-
     stages {
         stage('Stage 1: Build and push image') {
             steps {
