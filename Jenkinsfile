@@ -10,8 +10,7 @@ pipeline {
                     credentialsId: 'docker-registry-credentials',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
-                )])
-                {
+                )]) {
                 sh '''
                     docker build -t nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER} .
                     echo $DOCKER_PASS | docker login docker.io -u $DOCKER_USER --password-stdin
