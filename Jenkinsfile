@@ -6,19 +6,19 @@ pipeline {
     stages {
         stage('Stage 1: Build and push image') {
             steps {
-
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-registry-credentials',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )])
-
+                {
                 sh '''
                     docker build -t nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}
                     echo $DOCKER_PASS | docker login docker.io -u $DOCKER_USER --password-stdin
                     docker push nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}
 
                 '''
+                }
             }
         }
 
