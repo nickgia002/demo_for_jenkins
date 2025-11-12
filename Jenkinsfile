@@ -53,5 +53,4 @@ pipeline {
             cleanWs()  // Dọn sạch workspace sau khi job kết thúc
         }
     }
-
 }
