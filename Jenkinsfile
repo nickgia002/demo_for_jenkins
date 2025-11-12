@@ -1,3 +1,5 @@
+// Check the correctness of the trigger and checkout
+
 pipeline {
     agent any
 
@@ -47,5 +49,11 @@ pipeline {
             }
         }
     }
-}
 
+    post {
+    always {
+        cleanWs()  // Dọn sạch workspace sau khi job kết thúc
+        }
+    }
+
+}
