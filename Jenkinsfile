@@ -1,4 +1,4 @@
-// Check the correctness of the trigger and checkout   code before using this Jenkinsfile
+// Check the correctness of the trigger and checkout code before using this Jenkinsfile
 
 pipeline {
     agent any
