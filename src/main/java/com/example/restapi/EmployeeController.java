@@ -28,18 +28,15 @@ class EmployeeController {
         this.assembler = assembler;
     }
 
-    // Aggregate root
-    // tag::get-aggregate-root[]
     @GetMapping("/employees")
     CollectionModel<EntityModel<Employee>> all() {
 
-        List<EntityModel<Employee>> employees = repository.findAll().stream() //
+        List<EntityModel<Employee>> employees = repository.findAll().stream()
                 .map(assembler::toModel) //
                 .collect(Collectors.toList());
 
         return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
     }
-    // end::get-aggregate-root[]
     
     
     @GetMapping(value = "/demo", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,16 +52,15 @@ class EmployeeController {
 
         EntityModel<Employee> entityModel = assembler.toModel(repository.save(newEmployee));
 
-        return ResponseEntity //
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
     }
-    // Single item
 
     @GetMapping("/employees/{id}")
     EntityModel<Employee> one(@PathVariable Long id) {
 
-        Employee employee = repository.findById(id) //
+        Employee employee = repository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
 
         return assembler.toModel(employee);
@@ -73,12 +69,12 @@ class EmployeeController {
     @PutMapping("/employees/{id}")
     ResponseEntity<?> replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
 
-        Employee updatedEmployee = repository.findById(id) //
+        Employee updatedEmployee = repository.findById(id)
                 .map(employee -> {
                     employee.setName(newEmployee.getName());
                     employee.setRole(newEmployee.getRole());
                     return repository.save(employee);
-                }) //
+                })
                 .orElseGet(() -> {
                     newEmployee.setId(id);
                     return repository.save(newEmployee);
@@ -86,8 +82,8 @@ class EmployeeController {
 
         EntityModel<Employee> entityModel = assembler.toModel(updatedEmployee);
 
-        return ResponseEntity //
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
     }
 
