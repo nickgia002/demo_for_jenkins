@@ -1,3 +1,5 @@
+// Check the correctness of the trigger and checkout
+
 pipeline {
     agent any
 
