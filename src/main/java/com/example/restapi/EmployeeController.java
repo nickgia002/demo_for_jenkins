@@ -46,7 +46,7 @@ class EmployeeController {
     @ResponseBody
     public Map<String, String> demo() {
         // Trả về JSON {"message": "OxiiTek"}
-        return Map.of("message", "OxiiTek Test Trigger on Develop.");
+        return Map.of("message", "OxiiTek Trigger on Production.");
     }
 
 
