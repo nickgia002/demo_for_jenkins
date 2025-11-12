@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.util.Map;
+import org.springframework.http.MediaType;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -41,7 +44,7 @@ class EmployeeController {
     
     @GetMapping(value = "/demo", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, String> all() {
+    public Map<String, String> demo() {
         // Trả về JSON {"message": "OxiiTek"}
         return Map.of("message", "OxiiTek Test Trigger on Develop.");
     }
