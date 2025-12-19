@@ -3,15 +3,17 @@
 // CẤU HÌNH PHÊ DUYỆT THEO USER (THAY THẾ GROUPS)
 // CHỈNH SỬA các biến này với TÊN TÀI KHOẢN JENKINS thực tế của bạn
 // =================================================================
-def DEV_APPROVERS_LIST = 'project1_dev'        // Ví dụ: Team Dev
+def DEV_APPROVERS_LIST = 'project_dev'        // Ví dụ: Team Dev
 def MANAGER_APPROVERS_LIST = 'hungdn'  // Ví dụ: Manager/Leader
 // =================================================================
 
 pipeline {
-    agent any
+    agent {
+        label 'auto_deploy'
+    }
 
     stages {
-        stage('Stage 1: Build and push image') {
+        stage('Stage 1: Build and push image with kaniko') {
             steps {
                 script {
                     // Tạo Tag động cho Docker Image
@@ -22,13 +24,13 @@ pipeline {
                     credentialsId: 'docker-registry-credentials',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh """
-                    docker build -t ${IMAGE_TAG} .
-                    echo \$DOCKER_PASS | docker login docker.io -u \$DOCKER_USER --password-stdin
-                    docker push ${IMAGE_TAG}
-                    """
-                }
+                )]) container('kaniko') {
+                        sh """
+                        /kaniko/executor --context `pwd` \
+                          --dockerfile Dockerfile \
+                          --destination ${IMAGE_TAG}
+                        """
+                    }
             }
         }
 
@@ -76,13 +78,16 @@ pipeline {
                     expression { env.APPROVED == 'true' }
                 }
             }
+            script {
+                    // Tạo Tag động cho Docker Image
+                    env.CHART_PATH = "~/helm/oxii-work/oxii-work-chart/"
+                }
             steps {
-                sh """
-                echo "Triển khai Image ${IMAGE_TAG} lên môi trường DEVELOPMENT..."
-                docker stop demoJenkins || true
-                docker rm demoJenkins || true
-                docker run -tid --name demoJenkins -p 9090:9090 ${IMAGE_TAG}
-                """
+                container('helm') {
+                        sh """
+                        helm upgrade --install test -n test ${CHART_PATH}
+                        """
+                    }
             }
         }
         
