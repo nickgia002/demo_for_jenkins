@@ -2,10 +2,7 @@ def DEV_APPROVERS_LIST = 'project_dev'
 def MANAGER_APPROVERS_LIST = 'hungdn'
 
 pipeline {
-    agent {
-        // Sử dụng label của Cloud Kubernetes bạn đã cấu hình
-        kubernetes 'auto_deploy' 
-    }
+    agent kubernetes
 
     stages {
         stage('Stage 1: Build and push image with kaniko') {
