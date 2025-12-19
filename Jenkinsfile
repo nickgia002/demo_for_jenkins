@@ -2,7 +2,7 @@ def DEV_APPROVERS_LIST = 'project_dev'
 def MANAGER_APPROVERS_LIST = 'hungdn'
 
 pipeline {
-    agent {label 'auto-deploy'}
+    agent {label 'jenkins-jenkins-agent'}
 
     stages {
         stage('Stage 1: Build and push image with kaniko') {
