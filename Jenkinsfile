@@ -4,7 +4,7 @@ def MANAGER_APPROVERS_LIST = 'hungdn'
 pipeline {
     agent {
         // Sử dụng label của Cloud Kubernetes bạn đã cấu hình
-        labels 'auto_deploy' 
+        kubernetes 'auto_deploy' 
     }
 
     stages {
