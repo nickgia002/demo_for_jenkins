@@ -12,23 +12,6 @@ pipeline {
     agent none
 
     stages {
-        stage('Stage 1: Scan code with sonarqube') {
-            agent {
-                label 'sonar-scanner'
-            }
-            steps {
-                container(sonar-scanner) {
-                    script {
-                        sonar-scanner \
-                            -Dsonar.projectKey=test-scan \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=https://sonarqube.smarthiz.com \
-                            -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
-                    }
-                }
-            }
-        }
-
         stage('Stage 2: Build and push image with kaniko') {
             steps {
                 container('openssh') {
