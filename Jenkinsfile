@@ -19,9 +19,11 @@ pipeline {
                             passwordVariable: 'DOCKER_PASS'
                         )]) {
                             sh """
+                            set -o pipefail
                             AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
                             echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
-                            /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG} --snapshotMode=redo --cleanup --ignore-path=/workspace
+                            /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG} --snapshotMode=redo --cleanup --ignore-path=/workspace --log-format=text
+                            echo "KANIKO_DONE"
                             """
                         }
                     }
