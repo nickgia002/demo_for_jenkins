@@ -1,35 +1,45 @@
-def DEV_APPROVERS_LIST = 'project_dev'
-def MANAGER_APPROVERS_LIST = 'hungdn'
+def DEV_APPROVERS_LIST = 'duclh'
+def MANAGER_APPROVERS_LIST = 'hungdn, admin'
+
+sonar-scanner \
+  -Dsonar.projectKey=test-scan \
+  -Dsonar.sources=. \
+  -Dsonar.host.url=https://sonarqube.smarthiz.com \
+  -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
+
 
 pipeline {
-    agent {label 'auto-deploy'}
+    agent none
 
     stages {
-        stage('Stage 1: Build and push image with kaniko') {
+        stage('Stage 1: Scan code with sonarqube') {
+            agent {
+                label 'sonar-scanner'
+            }
             steps {
-                container('kaniko') {
+                container(sonar-scanner) {
                     script {
-                        // Khởi tạo Tag cho Image
-                        env.IMAGE_TAG = "nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}"
-                        
-                        // Sử dụng credentials để push image
-                        withCredentials([usernamePassword(
-                            credentialsId: 'docker-registry-credentials',
-                            usernameVariable: 'DOCKER_USER',
-                            passwordVariable: 'DOCKER_PASS'
-                        )]) {
-                            sh """
-                            AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
-                            echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
-                            /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG}
-                            """
-                        }
+                        sonar-scanner \
+                            -Dsonar.projectKey=test-scan \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=https://sonarqube.smarthiz.com \
+                            -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
                     }
                 }
             }
         }
 
-        stage('Stage 2: Approval') {
+        stage('Stage 2: Build and push image with kaniko') {
+            steps {
+                container('openssh') {
+                    script {
+                        echo "ssh running!"
+                    }
+                }
+            }
+        }
+
+        stage('Stage 3: Approval') {
             steps {
                 script {
                     def approvers
@@ -56,29 +66,11 @@ pipeline {
                 }
             }
         }
-
-        stage('Stage 3: Deploy to Dev') {
-            when {
-                allOf {
-                    branch 'develop'
-                    expression { env.APPROVED == 'true' }
-                }
-            }
-            steps {
-                container('helm') {
-                    script {
-                        // Khai báo PATH và thực hiện deploy
-                        def CHART_PATH = "helm/oxii-work/oxii-work-chart/"
-                        sh "helm upgrade --install test -n test ${CHART_PATH} --set image.tag=v${BUILD_NUMBER}"
-                    }
-                }
-            }
-        }
         
         stage('Stage 4: Deploy to Prod') {
             when {
                 allOf {
-                    branch 'main'
+                    branch 'develop'
                     expression { env.APPROVED == 'true' }
                 }
             }

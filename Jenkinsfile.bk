@@ -1,0 +1,166 @@
+def DEV_APPROVERS_LIST = 'duclh'
+def MANAGER_APPROVERS_LIST = 'hungdn, admin'
+
+sonar-scanner \
+  -Dsonar.projectKey=test-scan \
+  -Dsonar.sources=. \
+  -Dsonar.host.url=https://sonarqube.smarthiz.com \
+  -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
+
+
+pipeline {
+    agent none
+
+    stages {
+        stage('Stage 1: Scan code with sonarqube') {
+            agent {
+                label 'sonar-scanner'
+            }
+            steps {
+                container(sonar-scanner) {
+                    script {
+                        sonar-scanner \
+                            -Dsonar.projectKey=test-scan \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=https://sonarqube.smarthiz.com \
+                            -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
+                    }
+                }
+            }
+        }
+
+        stage('Stage 2: Build and push image with kaniko') {
+            steps {
+                container('kaniko') {
+                    script {
+                        // Khởi tạo Tag cho Image
+                        env.IMAGE_TAG = "nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}"
+                        
+                        // Sử dụng credentials để push image
+                        withCredentials([usernamePassword(
+                            credentialsId: 'docker-registry-credentials',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh """
+                            AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
+                            echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
+                            /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Stage 3: Approval') {
+            steps {
+                script {
+                    def approvers
+                    def branchName = env.BRANCH_NAME
+                    
+                    if (branchName == 'main') {
+                        approvers = MANAGER_APPROVERS_LIST
+                        echo "Chờ phê duyệt triển khai Production từ: ${approvers}"
+                    } else if (branchName == 'develop') {
+                        approvers = "${DEV_APPROVERS_LIST},${MANAGER_APPROVERS_LIST}" 
+                        echo "Chờ phê duyệt triển khai Development từ: ${approvers}"
+                    } else {
+                        approvers = DEV_APPROVERS_LIST
+                        echo "Chờ phê duyệt triển khai Feature/Fix từ: ${approvers}"
+                    }
+                    
+                    input(
+                        id: 'Approval', 
+                        message: "Bạn có đồng ý tiếp tục triển khai cho nhánh [${branchName}] không?", 
+                        ok: 'Yes - Deploy', 
+                        submitter: approvers 
+                    )
+                    env.APPROVED = 'true'
+                }
+            }
+        }
+
+        stage('Stage 4: Deploy to Dev') {
+            when {
+                allOf {
+                    branch 'develop'
+                    expression { env.APPROVED == 'true' }
+                }
+            }
+            steps {
+                container('helm') {
+                    script {
+                        // Khai báo PATH và thực hiện deploy
+                        def CHART_PATH = "helm/oxii-work/oxii-work-chart/"
+                        sh "helm upgrade --install test -n test ${CHART_PATH} --set image.tag=v${BUILD_NUMBER}"
+                    }
+                }
+            }
+        }
+        
+        stage('Stage 4: Deploy to Prod') {
+            when {
+                allOf {
+                    branch 'main'
+                    expression { env.APPROVED == 'true' }
+                }
+            }
+            steps {
+                echo "Deploy on production"
+                // Thêm lệnh deploy Production tương tự Stage 3 ở đây
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent none // Bắt buộc để không giữ Pod xuyên suốt pipeline
+
+    stages {
+        stage('Scan') {
+            agent {
+                label 'agent-build-scan' // Gọi Label bạn đã đặt trên UI
+            }
+            steps {
+                // Jenkins tự tạo Pod từ Template trên UI khi vào Stage này
+                container('maven') {
+                    sh 'mvn clean package'
+                }
+                container('trivy') {
+                    sh 'trivy image my-app:latest'
+                }
+            } 
+            // Kết thúc stage này, Pod 'agent-build-scan' sẽ bị xóa ngay
+        }
+
+        stage('Waiting for SonarQube') {
+            // Không khai báo agent ở đây, bước này chạy trên Jenkins Master
+            steps {
+                script {
+                    timeout(time: 30, unit: 'MINUTES') {
+                        // Jenkins "ngủ" chờ Webhook từ SonarQube, không tốn Pod K8s
+                        def qg = waitForQualityGate() 
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to K8s') {
+            agent {
+                label 'agent-deploy' // Gọi Template thứ hai trên UI
+            }
+            steps {
+                // Jenkins tạo một Pod mới hoàn toàn từ Template deploy
+                container('kubectl') {
+                    sh 'kubectl apply -f k8s/deployment.yaml'
+                }
+            }
+            // Kết thúc stage, Pod deploy cũng bị xóa
+        }
+    }
+}
