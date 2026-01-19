@@ -9,8 +9,22 @@ pipeline {
         stage('Stage 2: Build and push image with kaniko') {
             steps {
                 script {
-                    echo "ssh running!"
-                }
+                        // Khởi tạo Tag cho Image
+                        env.IMAGE_TAG = "nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}"
+                        
+                        // Sử dụng credentials để push image
+                        withCredentials([usernamePassword(
+                            credentialsId: 'nickgia002-dockerhub',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh """
+                            AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
+                            echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
+                            /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG}
+                            """
+                        }
+                    }
             }
         }
 
