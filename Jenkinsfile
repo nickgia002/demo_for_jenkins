@@ -21,7 +21,7 @@ pipeline {
                             sh """
                             AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
                             echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
-                            /kaniko/executor --rootfs=/kaniko/rootfs --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG} --snapshotMode=redo --cleanup
+                            /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG} --snapshotMode=redo --cleanup --ignore-path=/workspace
                             """
                         }
                     }
