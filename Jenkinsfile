@@ -2,7 +2,7 @@ def DEV_APPROVERS_LIST = 'duclh'
 def MANAGER_APPROVERS_LIST = 'hungdn, admin'
 pipeline {
     agent {
-        label docker
+        label 'docker'
     }
 
     stages {
