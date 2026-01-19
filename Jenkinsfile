@@ -1,15 +1,15 @@
 def DEV_APPROVERS_LIST = 'duclh'
 def MANAGER_APPROVERS_LIST = 'hungdn, admin'
 pipeline {
-    agent none
+    agent {
+        label docker
+    }
 
     stages {
         stage('Stage 2: Build and push image with kaniko') {
             steps {
-                container('openssh') {
-                    script {
-                        echo "ssh running!"
-                    }
+                script {
+                    echo "ssh running!"
                 }
             }
         }
