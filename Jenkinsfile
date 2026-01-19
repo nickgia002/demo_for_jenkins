@@ -1,13 +1,5 @@
 def DEV_APPROVERS_LIST = 'duclh'
 def MANAGER_APPROVERS_LIST = 'hungdn, admin'
-
-sonar-scanner \
-  -Dsonar.projectKey=test-scan \
-  -Dsonar.sources=. \
-  -Dsonar.host.url=https://sonarqube.smarthiz.com \
-  -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
-
-
 pipeline {
     agent none
 
