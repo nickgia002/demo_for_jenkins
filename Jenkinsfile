@@ -19,6 +19,8 @@ pipeline {
                             passwordVariable: 'DOCKER_PASS'
                         )]) {
                             sh """
+                            export DOCKER_CONFIG=/kaniko/.docker/
+                            export GOOGLE_APPLICATION_CREDENTIALS=/kaniko/.docker/config.json  
                             AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
                             echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
                             /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG}
