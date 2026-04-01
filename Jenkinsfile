@@ -72,7 +72,7 @@ pipeline {
 			    sh "git clone https://${GITHUB_USER}:${GITHUB_PASS}@github.com/nickgia002/argo-cd.git"
 			    dir('argo-cd') {
                             def newTag = "v${env.BUILD_NUMBER}"
-                            sh "sed -i 's/tag: .*/tag: "v_${BUILD_NUMBER}"/g' jenkins/values.yaml"
+                            sh "sed -i 's/tag: .*/tag: \"v_${BUILD_NUMBER}\"/g' jenkins/values.yaml"
 
                             sh """
                                 git config user.email "lehuynhduczxc@gmail.com"
