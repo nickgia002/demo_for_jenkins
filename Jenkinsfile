@@ -1,16 +1,16 @@
 def DEV_APPROVERS_LIST = 'duclh'
-def MANAGER_APPROVERS_LIST = 'hungdn, admin'
+def MANAGER_APPROVERS_LIST = 'admin'
 pipeline {
     agent {
-        label 'docker'
+        label 'kubernetes'
     }
 
     stages {
         stage('Stage 2: Build and push image with kaniko') {
+	    agent { label 'kaniko' }
             steps {
                 script {
-                        // Khởi tạo Tag cho Image
-                        env.IMAGE_TAG = "nickgia002/demo_jenkins_${BRANCH_NAME}:v${BUILD_NUMBER}"
+                        env.IMAGE_TAG = "nickgia002/app-dem:v_${BUILD_NUMBER}"
                         
                         // Sử dụng credentials để push image
                         withCredentials([usernamePassword(
@@ -65,7 +65,6 @@ pipeline {
             }
             steps {
                 echo "Deploy on production"
-                // Thêm lệnh deploy Production tương tự Stage 3 ở đây
             }
         }
     }
