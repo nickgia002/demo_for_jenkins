@@ -7,9 +7,9 @@ pipeline {
 
     stages {
         stage('Stage 2: Build and push image with kaniko') {
-	    agent { label 'kaniko' }
             steps {
-                script {
+		container('kaniko') {
+                    script {
                         env.IMAGE_TAG = "nickgia002/app-dem:v_${BUILD_NUMBER}"
                         
                         // Sử dụng credentials để push image
@@ -25,6 +25,7 @@ pipeline {
                             """
                         }
                     }
+		}
             }
         }
 
