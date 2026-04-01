@@ -6,11 +6,11 @@ pipeline {
     }
 
     stages {
-        stage('Stage 2: Build and push image with kaniko') {
+        stage('Stage 1: Build and push image with kaniko') {
             steps {
 		container('kaniko') {
                     script {
-                        env.IMAGE_TAG = "nickgia002/app-dem:v_${BUILD_NUMBER}"
+                        env.IMAGE_TAG = "nickgia002/app-demo:v_${BUILD_NUMBER}"
                         
                         // Sử dụng credentials để push image
                         withCredentials([usernamePassword(
@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-        stage('Stage 3: Approval') {
+        stage('Stage 2: Approval') {
             steps {
                 script {
                     def approvers
@@ -57,16 +57,50 @@ pipeline {
             }
         }
         
-        stage('Stage 4: Deploy to Prod') {
+        stage('Stage 3: Prepare helm chart') {
             when {
                 allOf {
-                    branch 'develop'
+                    branch 'main'
                     expression { env.APPROVED == 'true' }
                 }
             }
-            steps {
-                echo "Deploy on production"
-            }
+	    steps {
+                container (base) {
+                    script {
+                        env.IMAGE_TAG = "nickgia002/app-dem:v_${BUILD_NUMBER}"
+
+                        // Sử dụng credentials để push image
+                        withCredentials([usernamePassword(
+                            credentialsId: 'github-credential',
+                            usernameVariable: 'GITHUB_USER',                                                            passwordVariable: 'GITHUB_PASS'                                                         )]) {
+			    sh "git clone https://${GITHUB_USER}:${GITHUB_PASS}@github.com/nickgia002/argo-cd.git"
+			    dir('argo-cd') {
+                            // 2. Sửa file values.yaml
+                            // Ví dụ: cập nhật tag image mới bằng lệnh 'sed'
+                            // Giả sử bạn muốn đổi tag thành build number của Jenkins
+                            def newTag = "v${env.BUILD_NUMBER}"
+                            sh "sed -i 's/tag: .*/tag: "v_${BUILD_NUMBER}"/g' jenkins/values.yaml"
+
+                            // 3. Config Git và Push
+                            sh """
+                                git config user.email "lehuynhduczxc@gmail.com"
+                                git config user.name "Le Huynh Duc"
+                            
+                                git add jenkins/values.yaml
+                             
+                                # Kiểm tra xem có thay đổi gì không trước khi commit
+                                if ! git diff-index --quiet HEAD; then
+                                    git commit -m "image update: ${newTag} [skip ci]"
+                                    git push origin ${TARGET_BRANCH}
+                                else
+                                    echo "No changes to commit"
+                                fi
+                            """
+                            }
+			}
+		    }
+                }
+	    }
         }
     }
 }
