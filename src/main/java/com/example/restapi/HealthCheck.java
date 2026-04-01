@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-class EmployeeController {
+class HealthCheck {
 
     // Giữ lại constructor trống hoặc xóa nếu không dùng repository nữa
-    public EmployeeController() {}
+    public HealthCheck() {}
 
     @GetMapping("/health")
     public ResponseEntity<Void> healthCheck() {
