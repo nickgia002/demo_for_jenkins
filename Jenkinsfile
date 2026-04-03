@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Stage 1: Build and push image with kaniko') {
             steps {
-		container('kaniko') {
+                container('kaniko') {
                     script {
                         env.IMAGE_TAG = "nickgia002/app-demo:v_${BUILD_NUMBER}"
                         
@@ -24,7 +24,7 @@ pipeline {
                             """
                         }
                     }
-		}
+                }
             }
         }
 
@@ -63,36 +63,38 @@ pipeline {
                     expression { env.APPROVED == 'true' }
                 }
             }
-	    steps {
-                container (base) {
+            steps {
+                container ('base') {
                     script {
                         withCredentials([usernamePassword(
                             credentialsId: 'github-credential',
-                            usernameVariable: 'GITHUB_USER',                                                            passwordVariable: 'GITHUB_PASS'                                                         )]) {
-			    sh "git clone https://${GITHUB_USER}:${GITHUB_PASS}@github.com/nickgia002/argo-cd.git"
-			    dir('argo-cd') {
-                            def newTag = "v${env.BUILD_NUMBER}"
-                            sh "sed -i 's/tag: .*/tag: \"v_${BUILD_NUMBER}\"/g' jenkins/values.yaml"
+                            usernameVariable: 'GITHUB_USER',
+                            passwordVariable: 'GITHUB_PASS'
+                        )]) {
+                            sh "git clone https://${GITHUB_USER}:${GITHUB_PASS}@github.com/nickgia002/argo-cd.git"
+                            dir('argo-cd') {
+                                def newTag = "v${env.BUILD_NUMBER}"
+                                sh "sed -i 's/tag: .*/tag: \"v_${BUILD_NUMBER}\"/g' jenkins/values.yaml"
 
-                            sh """
-                                git config user.email "lehuynhduczxc@gmail.com"
-                                git config user.name "Le Huynh Duc"
-                            
-                                git add jenkins/values.yaml
-                             
-                                # Kiểm tra xem có thay đổi gì không trước khi commit
-                                if ! git diff-index --quiet HEAD; then
-                                    git commit -m "image update: v_${BUILD_NUMBER} [skip ci]"
-                                    git push origin main
-                                else
-                                    echo "No changes to commit"
-                                fi
-                            """
+                                sh """
+                                    git config user.email "lehuynhduczxc@gmail.com"
+                                    git config user.name "Le Huynh Duc"
+                                
+                                    git add jenkins/values.yaml
+                                    
+                                    # Kiểm tra xem có thay đổi gì không trước khi commit
+                                    if ! git diff-index --quiet HEAD; then
+                                        git commit -m "image update: v_${BUILD_NUMBER} [skip ci]"
+                                        git push origin main
+                                    else
+                                        echo "No changes to commit"
+                                    fi
+                                """
                             }
-			}
-		    }
+                        }
+                    }
                 }
-	    }
+            }
         }
     }
 }
