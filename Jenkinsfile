@@ -76,18 +76,18 @@ pipeline {
 			    """
                             dir('argo-cd') {
                                 sh """
-				    sed -i 's/tag: .*/tag: "v_${BUILD_NUMBER}"/g' jenkins/values.yaml
+				    sed -i 's/tag: .*/tag: "v_${BUILD_NUMBER}"/g' app-demo/values.yaml
 				"""
 
                                 sh """
                                     git config user.email "lehuynhduczxc@gmail.com"
                                     git config user.name "Le Huynh Duc"
                                 
-                                    git add jenkins/values.yaml
+                                    git add app-demo/values.yaml
                                     
                                     # Kiểm tra xem có thay đổi gì không trước khi commit
                                     if ! git diff-index --quiet HEAD; then
-                                        git commit -m "image update: v_${BUILD_NUMBER} [skip ci]"
+                                        git commit -m "image update for app-deo: v_${BUILD_NUMBER} [skip ci]"
                                         git push origin main
                                     else
                                         echo "No changes to commit"
