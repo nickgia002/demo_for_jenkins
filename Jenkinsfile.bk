@@ -1,12 +1,5 @@
 def DEV_APPROVERS_LIST = 'duclh'
-def MANAGER_APPROVERS_LIST = 'hungdn, admin'
-
-sonar-scanner \
-  -Dsonar.projectKey=test-scan \
-  -Dsonar.sources=. \
-  -Dsonar.host.url=https://sonarqube.smarthiz.com \
-  -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
-
+def MANAGER_APPROVERS_LIST = 'admin'
 
 pipeline {
     agent none
@@ -20,10 +13,10 @@ pipeline {
                 container(sonar-scanner) {
                     script {
                         sonar-scanner \
-                            -Dsonar.projectKey=test-scan \
+                            -Dsonar.projectKey=demo-scan \
                             -Dsonar.sources=. \
-                            -Dsonar.host.url=https://sonarqube.smarthiz.com \
-                            -Dsonar.token=sqp_b09d635e4da7f8ec801048a9236e2660aebc60f7
+                            -Dsonar.host.url=https://<onarqube-domain> \
+                            -Dsonar.token=<token>
                     }
                 }
             }
@@ -92,7 +85,7 @@ pipeline {
                 container('helm') {
                     script {
                         // Khai báo PATH và thực hiện deploy
-                        def CHART_PATH = "helm/oxii-work/oxii-work-chart/"
+                        def CHART_PATH = "app-demo"
                         sh "helm upgrade --install test -n test ${CHART_PATH} --set image.tag=v${BUILD_NUMBER}"
                     }
                 }

@@ -6,6 +6,29 @@ pipeline {
     }
 
     stages {
+        stage('Stage 1: Snyk Scan') {
+            steps {
+                container ('snyk') {
+                    script {
+                        sh """
+                            snyk code test --severity-threshold=high
+                        """
+                        sh """
+                            snyk test --severity-threshold=high
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Stage 1: Sonarqube Scan') {
+            steps {
+                container ('sonarqube') {
+
+                }
+            }
+        }
+
         stage('Stage 1: Build and push image with kaniko') {
             steps {
                 container('kaniko') {
