@@ -12,10 +12,11 @@ pipeline {
                     script {
                         env.SONAR_PRJ_KEY="app-demo"
                         env.SONAR_URL="http://argocd-sonarqube-demo-sonarqube.argocd-demo.svc.cluster.local:9000"
-                        env.SONAR_PRJ_TOKEN=credentials('sonarqube-app-demo-token')
-                        sh """
-                            sonar-scanner -Dsonar.projectKey=${SONAR_PRJ_KEY} -Dsonar.sources=. -Dsonar.host.url=${SONAR_URL} -Dsonar.token=${SONAR_PRJ_TOKEN} -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300
-                        """
+                        withCredentials([string(credentialsId: 'sonarqube-app-demo-token', variable: 'SONAR_PRJ_TOKEN')]) {      
+                            sh """
+                                sonar-scanner -Dsonar.projectKey=${SONAR_PRJ_KEY} -Dsonar.sources=. -Dsonar.host.url=${SONAR_URL} -Dsonar.token=${SONAR_PRJ_TOKEN} -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300
+                            """
+                        }
                     }
                 }
             }
