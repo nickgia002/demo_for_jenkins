@@ -7,11 +7,14 @@ pipeline {
 
     stages {
         stage('Stage 1: Sonarqube') {
-            def mvn = tool 'maven';
-            withSonarQubeEnv() {
-                sh "${mvn}/bin/mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=app-demo -Dsonar.projectName='app-demo'"
+            steps {
+                script {
+                    def mvn = tool 'maven';
+                    withSonarQubeEnv() {
+                        sh "${mvn}/bin/mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=app-demo -Dsonar.projectName='app-demo'"
+                    }
+                }
             }
-        
         }
 
         stage('Stage 1: Build and push image with kaniko') {
