@@ -8,6 +8,7 @@ class RestApiApplicationTests {
 
 	@Test
 	void contextLoads() {
+        // This is test method and will implement soon
 	}
 
 }
