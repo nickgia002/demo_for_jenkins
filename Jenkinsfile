@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        stage('Stage 1: Sonarqube') {
+        stage('Stage 1: Sonarqube Scan') {
             steps {
                 container('sonarqube') {
                     script {
@@ -39,6 +39,27 @@ pipeline {
                                 /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${IMAGE_TAG} --ignore-path=/workspace
                             '''
                         }
+                    }
+                }
+            }
+        }
+
+        stage('Stage 1: Trivy Scan') {
+            steps {
+                container('trivy') {
+                    script {    
+                        env.IMAGE_TAG = "nickgia002/app-demo:v_${BUILD_NUMBER}"
+                        sh '''
+                            trivy image --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --format template --template '@/contrib/html.tpl' -o report.html ${IMAGE_TAG}
+                        '''
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: '.',
+                            reportFiles: 'report.html',
+                            reportName: 'Trivy Security Report'
+                        ])
                     }
                 }
             }
