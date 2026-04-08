@@ -8,10 +8,11 @@ pipeline {
     stages {
         stage('Stage 1: Sonarqube') {
             steps {
-                script {
-                    def mvn = tool 'maven';
-                    withSonarQubeEnv() {
-                        sh "${mvn}/bin/mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=app-demo -Dsonar.projectName='app-demo'"
+                container('sonarqube') {
+                    script {
+                        sh """
+                            sonar-scanner -Dsonar.projectKey=${SONAR_PRJ_KEY} -Dsonar.sources=. -Dsonar.host.url=${SONAR_URL} -Dsonar.token=${SONAR_PRJ_TOKEN} -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300
+                        """
                     }
                 }
             }
