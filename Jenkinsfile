@@ -6,25 +6,11 @@ pipeline {
     }
 
     stages {
-        stage('Stage 1: Snyk Scan') {
+        stage('Stage 1: Sonarqube') {
             steps {
-                container ('snyk') {
-                    script {
-                        sh """
-                            snyk code test --severity-threshold=high
-                        """
-                        sh """
-                            snyk test --severity-threshold=high
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Stage 1: Sonarqube Scan') {
-            steps {
-                container ('sonarqube') {
-
+                def mvn = tool 'Default Maven';
+                withSonarQubeEnv() {
+                sh "${mvn}/bin/mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=app-demo -Dsonar.projectName='app-demo'"
                 }
             }
         }
