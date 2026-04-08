@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        stage('Stage 1: Sonarqube Scan') {
+        stage('Sonarqube Scan') {
             steps {
                 container('sonarqube') {
                     script {
@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Stage 1: Build and push image with kaniko') {
+        stage('Build and push image with kaniko') {
             steps {
                 container('kaniko') {
                     script {
@@ -44,7 +44,7 @@ pipeline {
             }
         }
 
-        stage('Stage 1: Trivy Scan') {
+        stage('Trivy Scan') {
             steps {
                 container('trivy') {
                     script {    
@@ -57,7 +57,7 @@ pipeline {
             }
         }
 
-        stage('Stage 2: Approval') {
+        stage('Approval') {
             steps {
                 script {
                     def approvers
@@ -85,7 +85,7 @@ pipeline {
             }
         }
         
-        stage('Stage 3: Prepare helm chart') {
+        stage('Prepare helm chart') {
             when {
                 allOf {
                     branch 'main'
