@@ -13,9 +13,9 @@ pipeline {
                         env.SONAR_PRJ_KEY="app-demo"
                         env.SONAR_URL="http://argocd-sonarqube-demo-sonarqube.argocd-demo.svc.cluster.local:9000"
                         withCredentials([string(credentialsId: 'sonarqube-app-demo-token', variable: 'SONAR_PRJ_TOKEN')]) {      
-                            sh '
+                            sh '''
                                 sonar-scanner -Dsonar.projectKey=${SONAR_PRJ_KEY} -Dsonar.sources=${WORKSPACE} -Dsonar.host.url=${SONAR_URL} -Dsonar.token=${SONAR_PRJ_TOKEN} -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300
-                            '
+                            '''
                         }
                     }
                 }
@@ -33,11 +33,11 @@ pipeline {
                             usernameVariable: 'DOCKER_USER',
                             passwordVariable: 'DOCKER_PASS'
                         )]) {
-                            sh '
-                            AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
-                            echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
-                            /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG} --ignore-path=/workspace
-                            '
+                            sh '''
+                                AUTH=\$(echo -n "\${DOCKER_USER}:\${DOCKER_PASS}" | base64 | tr -d '\\n')
+                                echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$AUTH\\"}}}" > /kaniko/.docker/config.json
+                                /kaniko/executor --context ${WORKSPACE} --dockerfile Dockerfile --destination ${env.IMAGE_TAG} --ignore-path=/workspace
+                            '''
                         }
                     }
                 }
@@ -87,9 +87,9 @@ pipeline {
                             usernameVariable: 'GITHUB_USER',
                             passwordVariable: 'GITHUB_PASS'
                         )]) {
-                            sh '
+                            sh '''
                                 git clone https://${GITHUB_USER}:${GITHUB_PASS}@github.com/nickgia002/argo-cd.git
-                            '
+                            '''
                             dir('argo-cd') {
                                 sh """
                                     sed -i 's/tag: .*/tag: "v_${BUILD_NUMBER}"/g' app-demo/values.yaml
