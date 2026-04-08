@@ -50,16 +50,8 @@ pipeline {
                     script {    
                         env.IMAGE_TAG = "nickgia002/app-demo:v_${BUILD_NUMBER}"
                         sh '''
-                            trivy image --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --format template --template '@/contrib/html.tpl' -o report.html ${IMAGE_TAG}
+                            trivy image --scanners vuln,secret,misconfig --severity HIGH,CRITICAL ${IMAGE_TAG}
                         '''
-                        publishHTML([
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true,
-                            reportDir: '.',
-                            reportFiles: 'report.html',
-                            reportName: 'Trivy Security Report'
-                        ])
                     }
                 }
             }
