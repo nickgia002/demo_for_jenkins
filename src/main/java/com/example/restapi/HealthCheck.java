@@ -10,8 +10,6 @@ import java.io.File;
 @RestController
 class HealthCheck {
 
-    public HealthCheck() {}
-
     @GetMapping("/health")
     public ResponseEntity<Void> healthCheck() {
         return ResponseEntity.ok().build();

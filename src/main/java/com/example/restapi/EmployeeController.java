@@ -42,7 +42,6 @@ class EmployeeController {
     @GetMapping(value = "/demo", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Map<String, String> demo() {
-        // Trả về JSON {"message": "OxiiTek"}
         return Map.of("message", "OxiiTek Trigger on Production.");
     }
 
